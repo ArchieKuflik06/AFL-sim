@@ -1,4 +1,21 @@
 from abc import ABC, abstractmethod
+from enum import Enum
+
+
+class FreeKickReason(Enum):
+    # Individual High-Frequency Infractions
+    HOLDING_BALL = "Holding the Ball"
+    HIGH_CONTACT = "High Tackle"
+    PUSH_IN_BACK = "Push in the Back"
+    HOLDING_MAN = "Holding the Man"
+    OUT_ON_FULL = "Out on the Full"
+    INSUFFICIENT_INTENT = "Insufficient Intent"  # Standard AFL term for Deliberate Out of Bounds
+    
+    # Parent Categories (Grouped low-frequency/technical infractions)
+    ILLEGAL_CONTACT = "Prohibited Contact"        # Tripping, charging, standard dangerous tackles
+    CONTEST_INFRINGEMENT = "Contest Infringement" # Chopping arms, block, ruck/marking interference
+    DELAY_OF_GAME = "Delay of Game"               # Time wasting, protected area, stepping over the mark
+    TECHNICAL_BREACH = "Technical Breach"         # 6-6-6 formation, illegal interchange, running too far
 
 
 class Event(ABC):
@@ -34,6 +51,7 @@ class DisposalEvent(Event, ABC):
                  is_clearance=False,
                  is_i50=False,
                  is_rebound50=False,
+                 is_turnover=False,
                  distance=None):
         super().__init__(player, time, quarter, team)
         self.is_effective = is_effective
@@ -41,6 +59,7 @@ class DisposalEvent(Event, ABC):
         self.is_clearance = is_clearance
         self.is_i50 = is_i50
         self.is_rebound50 = is_rebound50
+        self.is_turnover = is_turnover
         self.distance = distance
 
     @property
@@ -53,24 +72,34 @@ class DisposalEvent(Event, ABC):
         stats = getattr(self.player, "current_game_stats", None)
         if stats is None:
             return
-
+        # Use Stats.inc(...) where available to mutate counters consistently
         if self.disposal_type == "kick":
-            stats.kicks += 1
+            try:
+                stats.inc("kicks")
+            except AttributeError:
+                pass
         elif self.disposal_type == "handball":
-            stats.handballs += 1
+            try:
+                stats.inc("handballs")
+            except AttributeError:
+                pass
 
-        stats.disposals += 1
+        try:
+            stats.inc("disposals")
+        except AttributeError:
+            pass
 
-        if self.is_clearance and hasattr(stats, "clearances"):
-            stats.clearances += 1
-        if self.is_i50 and hasattr(stats, "i50_entries"):
-            stats.i50_entries += 1
-        if self.is_rebound50 and hasattr(stats, "rebound_50s"):
-            stats.rebound_50s += 1
-        if self.is_contested and hasattr(stats, "contested_disposals"):
-            stats.contested_disposals += 1
-        if self.is_effective and hasattr(stats, "effective_disposals"):
-            stats.effective_disposals += 1
+        for name, active in [("clearances", self.is_clearance),
+                             ("i50_entries", self.is_i50),
+                             ("rebound_50s", self.is_rebound50),
+                             ("contested_disposals", self.is_contested),
+                             ("effective_disposals", self.is_effective),
+                             ("turnovers", self.is_turnover)]:
+            if active:
+                try:
+                    stats.inc(name)
+                except AttributeError:
+                    pass
 
     def display_event(self):
         stats = getattr(self.player, "current_game_stats", None)
@@ -85,6 +114,7 @@ class DisposalEvent(Event, ABC):
             (self.is_clearance,  "clearance",  "clearances"),
             (self.is_i50,        "inside 50",  "i50_entries"),
             (self.is_rebound50,  "rebound 50", "rebound_50s"),
+            (self.is_turnover,   "turnover",   "turnovers"),
         ]
         details = [
             f"{label} #{getattr(stats, attr, 0)}"
@@ -106,6 +136,7 @@ class KickEvent(DisposalEvent):
                  is_clearance=False,
                  is_i50=False,
                  is_rebound50=False,
+                 is_turnover=False,
                  distance=None):
         super().__init__(player, time, quarter, team,
                          is_effective=is_effective,
@@ -113,6 +144,7 @@ class KickEvent(DisposalEvent):
                          is_clearance=is_clearance,
                          is_i50=is_i50,
                          is_rebound50=is_rebound50,
+                         is_turnover=is_turnover,
                          distance=distance)
 
     @property
@@ -129,6 +161,7 @@ class HandballEvent(DisposalEvent):
                  is_clearance=False,
                  is_i50=False,
                  is_rebound50=False,
+                 is_turnover=False,
                  distance=None):
         super().__init__(player, time, quarter, team,
                          is_effective=is_effective,
@@ -136,6 +169,7 @@ class HandballEvent(DisposalEvent):
                          is_clearance=is_clearance,
                          is_i50=is_i50,
                          is_rebound50=is_rebound50,
+                         is_turnover=is_turnover,
                          distance=distance)
 
     @property
@@ -145,6 +179,7 @@ class HandballEvent(DisposalEvent):
 
 class ScoreEvent(KickEvent, ABC):
     """Abstract score event for goals and behinds."""
+    #to do implement rushed behinds when starting to do team stats
 
     @property
     @abstractmethod
@@ -162,11 +197,17 @@ class ScoreEvent(KickEvent, ABC):
         stats = getattr(self.player, "current_game_stats", None)
         if stats is None:
             return
-
-        if self.score_type == "goal" and hasattr(stats, "goals"):
-            stats.goals += 1
-        elif self.score_type == "behind" and hasattr(stats, "behinds"):
-            stats.behinds += 1
+        # Use Stats.inc for score counters
+        if self.score_type == "goal":
+            try:
+                stats.inc("goals")
+            except AttributeError:
+                pass
+        elif self.score_type == "behind":
+            try:
+                stats.inc("behinds")
+            except AttributeError:
+                pass
 
     def display_event(self):
         stats = getattr(self.player, "current_game_stats", None)
@@ -217,3 +258,168 @@ class BehindEvent(ScoreEvent):
     def score_value(self):
         return 1
     
+class tackle(Event):
+    """Tackle event: records the tackler and the tackled player."""
+    def __init__(self, tackler, tackled_player, time, quarter, team):
+        super().__init__(tackler, time, quarter, team)
+        self.tackled_player = tackled_player
+
+    def apply(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+
+        # Use Stats.inc for tackles
+        try:
+            stats.inc("tackles")
+        except AttributeError:
+            pass
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+
+        tackler_name = self.player.name
+        tackled_name = getattr(self.tackled_player, "name", "Unknown")
+        base = f"Tackle #{getattr(stats, 'tackles', 0)} by {tackler_name} on {tackled_name} at {self.time} mins in Q{self.quarter}"
+
+        return base
+
+    @property
+    def event_type(self):
+        return "tackle"
+    
+class Mark(Event):
+    """Mark event: records the player who took the mark."""
+    def __init__(self, player, time, quarter, team,
+                 is_i50=False,
+                 is_contested=False,
+                 is_intercept=False,
+                 distance=None):
+        super().__init__(player, time, quarter, team)
+        self.is_i50 = is_i50
+        self.is_contested = is_contested
+        self.is_intercept = is_intercept
+        self.distance = distance
+
+    def apply(self):
+        """Apply shared  mark stats."""
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+
+        try:
+            stats.inc("marks")
+        except AttributeError:
+            pass
+
+        for name, active in [("marks_inside_50", self.is_i50),
+                             ("marks_contested", self.is_contested),
+                             ("marks_intercept", self.is_intercept)]:
+            if active:
+                try:
+                    stats.inc(name)
+                except AttributeError:
+                    pass
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+
+        base = f"Mark #{getattr(stats, 'marks', 0)} by {self.player.name} at {self.time} mins in Q{self.quarter}"
+
+        flags = [
+            (self.is_contested,  "contested",  "marks_contested"),
+            (self.is_i50,        "inside 50",  "marks_inside_50"),
+            (self.is_intercept,  "intercept",  "marks_intercept"),
+        ]
+        details = [
+            f"{label} #{getattr(stats, attr, 0)}"
+            for active, label, attr in flags if active
+        ]
+
+        if self.distance is not None:
+            details.append(f"{self.distance}m")
+
+        return f"{base} ({', '.join(details)})" if details else base
+
+
+    @property
+    def event_type(self):
+        return "mark"
+    
+class FreeDisposal(Event):
+    """Free kick event: records the player who received the free kick and who committed it."""
+    def __init__(self, got_free_kick_player, committed_free_kick_player, time, quarter, team, reason=None):
+        super().__init__(got_free_kick_player, time, quarter, team)
+        self.committed_free_kick_player = committed_free_kick_player
+        self.reason = reason if isinstance(reason, FreeKickReason) else FreeKickReason.PROHIBITED_CONTACT
+
+    def apply(self):
+        stats_for = getattr(self.player, "current_game_stats", None)
+        stats_against = getattr(self.committed_free_kick_player, "current_game_stats", None)
+        if stats_for is None or stats_against is None:
+            return
+
+        try:
+            stats_for.inc("frees_for")
+        except AttributeError:
+            pass
+
+        try:
+            stats_against.inc("frees_against")
+        except AttributeError:
+            pass
+
+        # to do: add logic for turnovers only if it's a change in possession
+        try:
+            stats_against.inc("turnovers")
+        except AttributeError:
+            pass
+
+    def display_event(self):
+        stats_for = getattr(self.player, "current_game_stats", None)
+        stats_against = getattr(self.committed_free_kick_player, "current_game_stats", None)
+        if stats_for is None or stats_against is None:
+            return
+
+        reason_str = f" ({self.reason.value})" if self.reason else ""
+        return (
+            f"Free Kick #{getattr(stats_for, 'frees_for', 0)} to {self.player.name}"
+            f" by {self.committed_free_kick_player.name} #{getattr(stats_against, 'frees_against', 0)}"
+            f"{reason_str} at {self.time} mins in Q{self.quarter}"
+        )
+    @property
+    def event_type(self):
+        return "free_kick"
+    
+class Hitout(Event):
+    def __init__(self, player, time, quarter, team,
+                 is_to_advantage=False,
+                 opponent=None):
+        super().__init__(player, time, quarter, team)
+        self.is_to_advantage = is_to_advantage
+        self.opponent = opponent
+
+    def apply(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+        stats.inc("hitouts")
+        if self.is_to_advantage:
+            stats.inc("hitouts_to_advantage")
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+        base = f"Hitout #{getattr(stats, 'hitouts', 0)} by {self.player.name} at {self.time} mins in Q{self.quarter}"
+        if self.is_to_advantage:
+            base += f" (to advantage #{getattr(stats, 'hitouts_to_advantage', 0)})"
+        return base
+
+    @property
+    def event_type(self):
+        return "hitout"

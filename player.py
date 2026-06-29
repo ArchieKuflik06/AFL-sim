@@ -11,6 +11,10 @@ class Stats:
     tackles: int = 0
     spoils: int = 0
     marks: int = 0
+    marks_inside_50: int = 0
+    marks_contested: int = 0
+    marks_intercept: int = 0
+    turnovers: int = 0
     turnovers_forced: int = 0
     turnovers_conceded: int = 0
     clearances: int = 0
@@ -18,6 +22,10 @@ class Stats:
     rebound_50s: int = 0
     contested_disposals: int = 0
     effective_disposals: int = 0
+    frees_for: int = 0
+    frees_against: int = 0
+    hitouts: int = 0
+    hitouts_to_advantage: int = 0
     rating_delta: float = 0.0
 
     def inc(self, name: str, amount: int = 1):
