@@ -1,7 +1,11 @@
-from team import Team
-from player import Player
-from Event import KickEvent, HandballEvent, GoalEvent, BehindEvent, tackle, Mark, FreeDisposal, Hitout, FreeKickReason
-from Match import Match
+import json
+from pathlib import Path
+from re import match
+import time
+from models.team import Team
+from models.player import Player
+from models.Event import KickEvent, HandballEvent, GoalEvent, BehindEvent, tackle, Mark, FreeDisposal, Hitout, FreeKickReason
+from models.Match import Match
 
 
 EVENT_MAP = {
@@ -23,32 +27,82 @@ class EventCreater:
         self.away_players = []
 
     def build_teams(self):
-        self.home_team = Team("Hawthorn Hawks", [], 0)
-        self.away_team = Team("Richmond Tigers", [], 0)
-
         self.home_players = [
-            Player("Jack Gunston", 2, "Forward", 80, self.home_team),        
-            Player("Lloyd Meek", 21, "Ruck", 75, self.home_team),           
-            Player("James Sicily", 4, "Defender", 83, self.home_team),       
-            Player("Jai Newcombe", 6, "Midfield", 85, self.home_team),       
-            Player("Mitch Lewis", 14, "Forward", 84, self.home_team),        
+            Player("Jack Gunston", 2, "Forward", None),
+            Player("Lloyd Meek", 21, "Ruck", None),
+            Player("James Sicily", 4, "Defender", None),
+            Player("Jai Newcombe", 6, "Midfield", None),
+            Player("Mitch Lewis", 14, "Forward", None),
         ]
 
         self.away_players = [
-            Player("Tom Lynch", 9, "Forward", 84, self.away_team),          
-            Player("Toby Nankervis", 17, "Ruck", 78, self.away_team),      
-            Player("Dylan Grimes", 8, "Defender", 82, self.away_team),       
-            Player("Tim Taranto", 3, "Midfield", 83, self.away_team),      
-            Player("Shai Bolton", 7, "Forward", 83, self.away_team),      
+            Player("Tom Lynch", 9, "Forward", None),
+            Player("Toby Nankervis", 17, "Ruck", None),
+            Player("Dylan Grimes", 8, "Defender", None),
+            Player("Tim Taranto", 3, "Midfield", None),
+            Player("Shai Bolton", 7, "Forward", None),
         ]
+
+        self.home_team = Team("Hawthorn Hawks", self.home_players, [], 0)
+        self.away_team = Team("Richmond Tigers", self.away_players, [], 0)
+
+        for player in self.home_players:
+            player.team = self.home_team
+        for player in self.away_players:
+            player.team = self.away_team
 
         self.home_team.players = self.home_players
         self.away_team.players = self.away_players
+
+        self.home_team.on_ground = set(self.home_players)
+        self.away_team.on_ground = set(self.away_players)
+        self.home_team.off_ground = set()
+        self.away_team.off_ground = set()
+
+        self.home_players = list(self.home_players)
+        self.away_players = list(self.away_players)
 
     def build_match(self, venue="MCG"):
         if self.home_team is None or self.away_team is None:
             raise RuntimeError("Teams must be built before creating the match")
         self.match = Match(self.home_team, self.away_team, venue)
+
+    def _apply_interchange(self, team, player_off, player_on, time, quarter):
+        if player_off not in team.on_ground:
+            raise ValueError(f"{player_off.name} is not currently on the ground")
+
+        team.on_ground.discard(player_on)
+        team.off_ground.add(player_on)
+        team.interchange([(player_off, player_on)], time, quarter)
+        print(f"{team.name} interchange: {player_off.name} off, {player_on.name} on")
+
+    def _apply_review(self, event, overturned=False, new_event_type=None):
+        review_result = self.match.event_review(event, overturned=overturned, new_event_type=new_event_type)
+        print(f"Review result: {review_result}")
+        return review_result
+
+    def _assign_event_times(self, event_data, quarter_length=2.0):
+        events_by_quarter = {}
+        for index, item in enumerate(event_data):
+            quarter = item[3]
+            events_by_quarter.setdefault(quarter, []).append((index, item))
+
+        scaled_data = []
+        for quarter, indexed_events in events_by_quarter.items():
+            count = len(indexed_events)
+            if count == 0:
+                continue
+            weights = [(i + 1) ** 1.2 for i in range(count)]
+            total_weight = sum(weights)
+            cumulative = 0.0
+            for order, (original_index, (event_type, player, time, quarter_value, team, data)) in enumerate(indexed_events):
+                cumulative += weights[order]
+                scaled_time = round(0.01 + (cumulative / total_weight) * (quarter_length - 0.01), 2)
+                scaled_data.append((original_index, event_type, player, scaled_time, quarter_value, team, data, time))
+
+        scaled_data.sort(key=lambda item: item[0])
+        return [(event_type, player, scaled_time, quarter_value, team, data, original_time)
+                for original_index, event_type, player, scaled_time, quarter_value, team, data, original_time in scaled_data]
 
     def create_event(self, event_type, player, time, quarter, team, data=None):
         kwargs = data or {}
@@ -71,11 +125,44 @@ class EventCreater:
             raise ValueError(f"Unknown event type: {event_type}")
         return cls(player, time, quarter, team, **kwargs)
 
-    def simulate(self):
+    def _serialize_value(self, value):
+        if hasattr(value, "name"):
+            return value.name
+        if isinstance(value, FreeKickReason):
+            return value.value
+        if isinstance(value, dict):
+            return {key: self._serialize_value(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [self._serialize_value(item) for item in value]
+        return value
+
+    def _write_events_json(self, event_data, scaled_event_data, output_path=None):
+        output = Path(output_path or Path(__file__).with_name("events.json"))
+        serialized_events = []
+
+        for item, scaled_item in zip(event_data, scaled_event_data):
+            event_type, player, _, quarter, team, data = item[:6]
+            _, _, scaled_time, _, _, _, original_time = scaled_item
+            player_name = player.name if hasattr(player, "name") else player
+            team_name = team.name if hasattr(team, "name") else team
+            serialized_events.append({
+                "event_type": event_type,
+                "player": player_name,
+                "time": scaled_time,
+                "quarter": quarter,
+                "team": team_name,
+                "data": self._serialize_value(data or {}),
+                "original_time": original_time,
+            })
+
+        output.write_text(json.dumps(serialized_events, indent=2), encoding="utf-8")
+        return output
+
+    def simulate(self, real_time: bool = False, playback_speed: float = 1.0, quarter_length: float = 2.0):
         self.build_teams()
         self.build_match()
 
-        event = event_data = [
+        event_data = [
             # Quarter 1 - Hawks win the tap, clearance chain leads to goal
             ("hitout", self.home_players[1], 0, 1, self.home_team, {"is_to_advantage": True}),
             ("kick", self.home_players[3], 1, 1, self.home_team, {"is_clearance": True, "is_effective": True}),
@@ -233,11 +320,34 @@ class EventCreater:
             ("goal", self.home_players[4], 27, 4, self.home_team, {"is_i50": True, "is_effective": True}),
         ]
 
-        events = [self.create_event(*data) for data in event_data]
+        scaled_event_data = self._assign_event_times(event_data, quarter_length=quarter_length)
+        output_path = self._write_events_json(event_data, scaled_event_data)
+        print(f"Wrote {len(scaled_event_data)} events to {output_path}")
+        events = [self.create_event(event_type, player, time, quarter, team, data)
+                  for event_type, player, time, quarter, team, data, _ in scaled_event_data]
 
-        for event in events:
+        previous_absolute_time = 0.0
+        for event, scaled_event in zip(events, scaled_event_data):
+            original_time = scaled_event[6]
+            event_absolute_time = (event.quarter - 1) * quarter_length + event.time
+            if real_time:
+                delay_seconds = max(0.0, (event_absolute_time - previous_absolute_time) * 60.0 / max(1e-6, playback_speed))
+                if delay_seconds > 0:
+                    time.sleep(delay_seconds)
+            previous_absolute_time = event_absolute_time
+
             self.match.add_event(event)
             event.apply()
+            event.apply_fantasy()
+
+            if event.quarter == 1 and original_time == 5 and event.team == self.home_team:
+                self._apply_interchange(self.home_team, self.home_players[0], self.home_players[4], event.time, event.quarter)
+                self._apply_review(event, overturned=False, new_event_type="behind")
+
+            if event.quarter == 1 and original_time == 27 and event.team == self.away_team:
+                self._apply_interchange(self.away_team, self.away_players[0], self.away_players[4], event.time, event.quarter)
+                self._apply_review(event, overturned=True, new_event_type="behind")
+
             print(event.display_event())
 
         print("\nFinal score:")
@@ -247,6 +357,12 @@ class EventCreater:
 
         for player in self.home_players + self.away_players:
             player.display_stats()
+        
+        for team in [self.home_team, self.away_team]:
+            team.display_stats()
+
+        # call the instance method on this match to list top scorers
+        self.match.rank_top_scorers()
 
         return self.match
 

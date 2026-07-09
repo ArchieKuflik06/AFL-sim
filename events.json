@@ -1,0 +1,1385 @@
+[
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.01,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 0
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 0.02,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 1
+  },
+  {
+    "event_type": "mark",
+    "player": "Jack Gunston",
+    "time": 0.02,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {},
+    "original_time": 2
+  },
+  {
+    "event_type": "kick",
+    "player": "Jack Gunston",
+    "time": 0.03,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 3
+  },
+  {
+    "event_type": "mark",
+    "player": "Mitch Lewis",
+    "time": 0.04,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 4
+  },
+  {
+    "event_type": "goal",
+    "player": "Mitch Lewis",
+    "time": 0.06,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 5
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.08,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 6
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.1,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 7
+  },
+  {
+    "event_type": "handball",
+    "player": "Tom Lynch",
+    "time": 0.13,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": false
+    },
+    "original_time": 8
+  },
+  {
+    "event_type": "tackle",
+    "player": "Jai Newcombe",
+    "time": 0.16,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "tackled": "Tom Lynch",
+      "resulted_in_free": true
+    },
+    "original_time": 9
+  },
+  {
+    "event_type": "free_kick",
+    "player": "James Sicily",
+    "time": 0.19,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Tom Lynch",
+      "reason": "HOLDING_BALL"
+    },
+    "original_time": 9
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 0.22,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true,
+      "is_i50": true
+    },
+    "original_time": 10
+  },
+  {
+    "event_type": "behind",
+    "player": "Mitch Lewis",
+    "time": 0.26,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 11
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.31,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": false
+    },
+    "original_time": 12
+  },
+  {
+    "event_type": "kick",
+    "player": "Dylan Grimes",
+    "time": 0.35,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 13
+  },
+  {
+    "event_type": "mark",
+    "player": "Shai Bolton",
+    "time": 0.4,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {},
+    "original_time": 14
+  },
+  {
+    "event_type": "kick",
+    "player": "Shai Bolton",
+    "time": 0.46,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 15
+  },
+  {
+    "event_type": "behind",
+    "player": "Tom Lynch",
+    "time": 0.51,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 16
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 0.58,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_rebound50": true,
+      "is_effective": true
+    },
+    "original_time": 17
+  },
+  {
+    "event_type": "handball",
+    "player": "Jai Newcombe",
+    "time": 0.64,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 18
+  },
+  {
+    "event_type": "handball",
+    "player": "Jack Gunston",
+    "time": 0.71,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true,
+      "is_i50": true
+    },
+    "original_time": 19
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Jack Gunston",
+    "time": 0.79,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Dylan Grimes",
+      "reason": "PUSH_IN_BACK"
+    },
+    "original_time": 20
+  },
+  {
+    "event_type": "goal",
+    "player": "Jack Gunston",
+    "time": 0.86,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 21
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.95,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 22
+  },
+  {
+    "event_type": "handball",
+    "player": "Tim Taranto",
+    "time": 1.03,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": true
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 1.12,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 24
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Shai Bolton",
+    "time": 1.22,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "committed": "Jai Newcombe",
+      "reason": "HIGH_CONTACT"
+    },
+    "original_time": 25
+  },
+  {
+    "event_type": "kick",
+    "player": "Shai Bolton",
+    "time": 1.32,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 26
+  },
+  {
+    "event_type": "goal",
+    "player": "Tom Lynch",
+    "time": 1.42,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 27
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 1.53,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": false
+    },
+    "original_time": 28
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 1.64,
+    "quarter": 1,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": false,
+      "is_turnover": true
+    },
+    "original_time": 29
+  },
+  {
+    "event_type": "mark",
+    "player": "Dylan Grimes",
+    "time": 1.75,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_intercept": true
+    },
+    "original_time": 30
+  },
+  {
+    "event_type": "kick",
+    "player": "Dylan Grimes",
+    "time": 1.88,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 31
+  },
+  {
+    "event_type": "behind",
+    "player": "Shai Bolton",
+    "time": 2.0,
+    "quarter": 1,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 32
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.01,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 0
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 0.02,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 1
+  },
+  {
+    "event_type": "handball",
+    "player": "Jack Gunston",
+    "time": 0.03,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 2
+  },
+  {
+    "event_type": "kick",
+    "player": "Mitch Lewis",
+    "time": 0.04,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 3
+  },
+  {
+    "event_type": "mark",
+    "player": "Jack Gunston",
+    "time": 0.06,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_contested": true
+    },
+    "original_time": 4
+  },
+  {
+    "event_type": "behind",
+    "player": "Jack Gunston",
+    "time": 0.09,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 5
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.12,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 6
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.15,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 7
+  },
+  {
+    "event_type": "mark",
+    "player": "Tom Lynch",
+    "time": 0.19,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {},
+    "original_time": 8
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Tom Lynch",
+    "time": 0.23,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "committed": "James Sicily",
+      "reason": "HOLDING_MAN"
+    },
+    "original_time": 9
+  },
+  {
+    "event_type": "kick",
+    "player": "Tom Lynch",
+    "time": 0.28,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 10
+  },
+  {
+    "event_type": "goal",
+    "player": "Shai Bolton",
+    "time": 0.33,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 11
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.39,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": false
+    },
+    "original_time": 12
+  },
+  {
+    "event_type": "handball",
+    "player": "Jai Newcombe",
+    "time": 0.46,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_contested": true,
+      "is_effective": false,
+      "is_turnover": true
+    },
+    "original_time": 13
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.53,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 14
+  },
+  {
+    "event_type": "kick",
+    "player": "Shai Bolton",
+    "time": 0.61,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 15
+  },
+  {
+    "event_type": "mark",
+    "player": "Tom Lynch",
+    "time": 0.69,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 16
+  },
+  {
+    "event_type": "goal",
+    "player": "Tom Lynch",
+    "time": 0.78,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 17
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.87,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 18
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 0.97,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 19
+  },
+  {
+    "event_type": "handball",
+    "player": "James Sicily",
+    "time": 1.08,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 20
+  },
+  {
+    "event_type": "kick",
+    "player": "Jack Gunston",
+    "time": 1.19,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 21
+  },
+  {
+    "event_type": "handball",
+    "player": "Mitch Lewis",
+    "time": 1.31,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_contested": true,
+      "is_effective": false
+    },
+    "original_time": 22
+  },
+  {
+    "event_type": "tackle",
+    "player": "Dylan Grimes",
+    "time": 1.44,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "tackled": "Mitch Lewis",
+      "resulted_in_free": true
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Dylan Grimes",
+    "time": 1.57,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "committed": "Mitch Lewis",
+      "reason": "HOLDING_BALL"
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "kick",
+    "player": "Dylan Grimes",
+    "time": 1.71,
+    "quarter": 2,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_rebound50": true,
+      "is_effective": true
+    },
+    "original_time": 24
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 1.85,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 25
+  },
+  {
+    "event_type": "goal",
+    "player": "Mitch Lewis",
+    "time": 2.0,
+    "quarter": 2,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 26
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.01,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 0
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.02,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 1
+  },
+  {
+    "event_type": "mark",
+    "player": "Shai Bolton",
+    "time": 0.03,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {},
+    "original_time": 2
+  },
+  {
+    "event_type": "kick",
+    "player": "Shai Bolton",
+    "time": 0.04,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 3
+  },
+  {
+    "event_type": "mark",
+    "player": "Tom Lynch",
+    "time": 0.06,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 4
+  },
+  {
+    "event_type": "goal",
+    "player": "Tom Lynch",
+    "time": 0.08,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 5
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.11,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": false
+    },
+    "original_time": 6
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 0.14,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_rebound50": true,
+      "is_effective": true
+    },
+    "original_time": 7
+  },
+  {
+    "event_type": "mark",
+    "player": "Jai Newcombe",
+    "time": 0.17,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {},
+    "original_time": 8
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Jai Newcombe",
+    "time": 0.21,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Tim Taranto",
+      "reason": "HOLDING_MAN"
+    },
+    "original_time": 9
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 0.26,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 10
+  },
+  {
+    "event_type": "behind",
+    "player": "Jack Gunston",
+    "time": 0.31,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 11
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.37,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 12
+  },
+  {
+    "event_type": "handball",
+    "player": "Tim Taranto",
+    "time": 0.43,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": true
+    },
+    "original_time": 13
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.49,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_effective": false,
+      "is_turnover": true
+    },
+    "original_time": 14
+  },
+  {
+    "event_type": "mark",
+    "player": "James Sicily",
+    "time": 0.56,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_intercept": true
+    },
+    "original_time": 15
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 0.64,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 16
+  },
+  {
+    "event_type": "handball",
+    "player": "Jai Newcombe",
+    "time": 0.72,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 17
+  },
+  {
+    "event_type": "kick",
+    "player": "Jack Gunston",
+    "time": 0.81,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 18
+  },
+  {
+    "event_type": "goal",
+    "player": "Mitch Lewis",
+    "time": 0.9,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 19
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 1.0,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 20
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 1.11,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 21
+  },
+  {
+    "event_type": "handball",
+    "player": "Shai Bolton",
+    "time": 1.22,
+    "quarter": 3,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": false
+    },
+    "original_time": 22
+  },
+  {
+    "event_type": "tackle",
+    "player": "James Sicily",
+    "time": 1.33,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "tackled": "Shai Bolton",
+      "resulted_in_free": true
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "free_kick",
+    "player": "James Sicily",
+    "time": 1.45,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Shai Bolton",
+      "reason": "HOLDING_BALL"
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 1.58,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 24
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 1.72,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 25
+  },
+  {
+    "event_type": "mark",
+    "player": "Jack Gunston",
+    "time": 1.85,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_contested": true
+    },
+    "original_time": 26
+  },
+  {
+    "event_type": "goal",
+    "player": "Jack Gunston",
+    "time": 2.0,
+    "quarter": 3,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 27
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.01,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 0
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.02,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 1
+  },
+  {
+    "event_type": "handball",
+    "player": "Shai Bolton",
+    "time": 0.03,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 2
+  },
+  {
+    "event_type": "kick",
+    "player": "Tom Lynch",
+    "time": 0.04,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 3
+  },
+  {
+    "event_type": "mark",
+    "player": "Shai Bolton",
+    "time": 0.06,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 4
+  },
+  {
+    "event_type": "goal",
+    "player": "Shai Bolton",
+    "time": 0.08,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 5
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 0.11,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 6
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 0.14,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 7
+  },
+  {
+    "event_type": "mark",
+    "player": "James Sicily",
+    "time": 0.17,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_intercept": true
+    },
+    "original_time": 8
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 0.21,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 9
+  },
+  {
+    "event_type": "handball",
+    "player": "Jai Newcombe",
+    "time": 0.26,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 10
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Mitch Lewis",
+    "time": 0.31,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Tim Taranto",
+      "reason": "PUSH_IN_BACK"
+    },
+    "original_time": 11
+  },
+  {
+    "event_type": "kick",
+    "player": "Mitch Lewis",
+    "time": 0.37,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 12
+  },
+  {
+    "event_type": "goal",
+    "player": "Jack Gunston",
+    "time": 0.43,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 13
+  },
+  {
+    "event_type": "hitout",
+    "player": "Toby Nankervis",
+    "time": 0.49,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_to_advantage": false
+    },
+    "original_time": 14
+  },
+  {
+    "event_type": "kick",
+    "player": "Tim Taranto",
+    "time": 0.56,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_clearance": true,
+      "is_effective": true
+    },
+    "original_time": 15
+  },
+  {
+    "event_type": "handball",
+    "player": "Shai Bolton",
+    "time": 0.64,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": true
+    },
+    "original_time": 16
+  },
+  {
+    "event_type": "free_kick",
+    "player": "Tom Lynch",
+    "time": 0.72,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "committed": "James Sicily",
+      "reason": "HIGH_CONTACT"
+    },
+    "original_time": 17
+  },
+  {
+    "event_type": "kick",
+    "player": "Tom Lynch",
+    "time": 0.81,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 18
+  },
+  {
+    "event_type": "behind",
+    "player": "Shai Bolton",
+    "time": 0.9,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_i50": true
+    },
+    "original_time": 19
+  },
+  {
+    "event_type": "hitout",
+    "player": "Lloyd Meek",
+    "time": 1.0,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_to_advantage": true
+    },
+    "original_time": 20
+  },
+  {
+    "event_type": "handball",
+    "player": "Jai Newcombe",
+    "time": 1.11,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_contested": true,
+      "is_effective": true
+    },
+    "original_time": 21
+  },
+  {
+    "event_type": "kick",
+    "player": "Jai Newcombe",
+    "time": 1.22,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 22
+  },
+  {
+    "event_type": "handball",
+    "player": "Jack Gunston",
+    "time": 1.33,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_effective": true
+    },
+    "original_time": 23
+  },
+  {
+    "event_type": "handball",
+    "player": "Shai Bolton",
+    "time": 1.45,
+    "quarter": 4,
+    "team": "Richmond Tigers",
+    "data": {
+      "is_contested": true,
+      "is_effective": false
+    },
+    "original_time": 24
+  },
+  {
+    "event_type": "tackle",
+    "player": "James Sicily",
+    "time": 1.58,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "tackled": "Shai Bolton",
+      "resulted_in_free": true
+    },
+    "original_time": 25
+  },
+  {
+    "event_type": "free_kick",
+    "player": "James Sicily",
+    "time": 1.72,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "committed": "Shai Bolton",
+      "reason": "HOLDING_BALL"
+    },
+    "original_time": 25
+  },
+  {
+    "event_type": "kick",
+    "player": "James Sicily",
+    "time": 1.85,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 26
+  },
+  {
+    "event_type": "goal",
+    "player": "Mitch Lewis",
+    "time": 2.0,
+    "quarter": 4,
+    "team": "Hawthorn Hawks",
+    "data": {
+      "is_i50": true,
+      "is_effective": true
+    },
+    "original_time": 27
+  }
+]
