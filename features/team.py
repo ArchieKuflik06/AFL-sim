@@ -1,4 +1,4 @@
-from Data_Classes import TeamStats as Stats
+from game_stats.Data_Classes import TeamStats as Stats
 
 class Team:
     def __init__(self, name, players_starting_on, players_starting_off, score):
@@ -57,3 +57,9 @@ class Team:
     def getPlayers(self):
         print(self.players)
         return self.players
+    
+    def get_player(self, name):
+        for player in self.players:
+            if player.name == name:
+                return player
+        raise ValueError(f"Player '{name}' not found on {self.name}")

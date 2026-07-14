@@ -1,4 +1,4 @@
-from Data_Classes import PlayerStats as Stats, RatingWeightings, FantasyWeightings
+from game_stats.Data_Classes import PlayerStats as Stats, RatingWeightings, FantasyWeightings
 class Player:
     def __init__(self, name, number, position, team):
         self.number = number

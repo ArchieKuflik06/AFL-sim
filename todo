@@ -1,0 +1,35 @@
+2. Structural / data-model changes (do before UI)
+
+ 
+ Quarter-level stat aggregation — decide now whether Stats snapshots per quarter or the UI recomputes from Match.events - once SQL
+ Validation/error handling — decide skip-and-log vs. hard-fail for malformed events (unknown event_type, missing player/team names) before this becomes a real API feed
+
+ chain - score involvements/goal assists
+
+3. Additive engine features (safe anytime, no reshaping needed)
+
+ Remaining event types: rushed/touched behinds
+ fix efficiency
+
+
+
+4. Testing (do alongside 2–3, before UI) and comments read me
+
+ Unit tests for EventEngine.load_event (correct class dispatch, name/team resolution, reason conversion)
+ socre reviews proper testing
+ Unit tests for a few Event.apply() methods (stat increments correct, especially anything with conditional flags)
+
+5. UI
+
+ Build UI once data model (chains, quarter aggregation, efficiency) is stable — avoids re-wiring UI data source repeatedly
+
+6. Post-UI / fully additive (won't require touching existing structure)
+
+ Substitution/medical sub rule enforcement (on top of existing interchange system)
+ Weather/venue effects on disposal efficiency (another multiplier)
+ Multi-match / season simulation, aggregating career stats across matches
+ Commentary/narrative text generation from display_event() output
+ Export/save match stats (CSV/JSON box score dump)
+ events being interactive for users
+ add seasons/fixtures
+ Given a historical game a plausible sequence of events - train ML??

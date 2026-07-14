@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from event_creator import EventCreater
+from bin.event_creator import EventCreater
 from models.Match import Match
 from models.player import Player
 from models.team import Team

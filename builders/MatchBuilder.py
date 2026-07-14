@@ -1,4 +1,4 @@
-from models.Match import Match
+from features.Match import Match
 
 class MatchBuilder:
 

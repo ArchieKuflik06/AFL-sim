@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from Data_Classes import raw_to_rating
+from game_stats.Data_Classes import raw_to_rating
 import models.team as team
 
 

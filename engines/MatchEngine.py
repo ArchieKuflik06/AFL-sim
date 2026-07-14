@@ -1,7 +1,10 @@
 from builders.MatchBuilder import MatchBuilder
 from builders.TeamBuilder import TeamBuilder
-from engine.EventProcessor import EventProcessor
-from models.player import Player
+from engines.EventProcessor import EventProcessor
+from engines.EventLoader import EventLoader
+from features.player import Player
+from engines.ChainTracker import ChainTracker
+from features.MatchEvents import EventReview
 
 
 class MatchEngine:
@@ -10,21 +13,21 @@ class MatchEngine:
         self.match = None
         self.event_processor = None
 
+    
 
     def create_match(self):
-
         home_team = self.create_home_team()
         away_team = self.create_away_team()
 
         match_builder = MatchBuilder()
-
-        self.match = match_builder.build(
-            home_team,
-            away_team,
-            "MCG"
-        )
+        self.match = match_builder.build(home_team, away_team, "MCG")
 
         self.event_processor = EventProcessor(self.match)
+        self.chain_tracker = ChainTracker()
+        self.event_engine = EventLoader(self.match, self.chain_tracker)
+      
+
+        self.chain_tracker = ChainTracker()
 
         return self.match
 
@@ -68,8 +71,30 @@ class MatchEngine:
 
         return builder.build()
     
-    def run(self, events):
-        for event in events:
-            self.event_processor.process(event)
+    def run(self, raw_events):
 
-        return self.match
+        events = [self.event_engine.load_event(d) for d in raw_events]
+        events.sort(key=lambda e: (e.quarter, e.time))
+
+        for event in events:
+           #event.player.display_stats()
+            self.event_processor.process(event)
+            self.chain_tracker.process_chain(event)
+
+    
+        self.chain_tracker.finalize()
+        return self.match 
+
+    def review_event(self, target_time, target_quarter, overturned=False, new_event=None):
+        target_event = next(
+            e for e in self.match.events
+            if e.time == target_time and e.quarter == target_quarter
+        )
+        review = EventReview(target_event, self.chain_tracker, overturned=overturned, new_event=new_event)
+        self.event_processor.process(review)
+        return review    
+
+
+
+
+        

@@ -42,10 +42,11 @@ class BaseStats:
     frees_against: int = 0
     hitouts: int = 0
     hitouts_to_advantage: int = 0
-    disposal_efficiency: float = 0.0
-    goal_accuracy: float = 0.0
+    disposal_efficiency: float = effective_disposals / disposals if disposals > 0 else 0.0
+    goal_accuracy: float = goals / (behinds + goals) if (behinds + goals) > 0 else 0.0
     one_percenters: int = 0
     ground_ball_gets: int = 0
+    knock_ons: int = 0
 
 
 
@@ -53,6 +54,12 @@ class BaseStats:
         if not hasattr(self, name):
             raise AttributeError(f"Unknown stat: {name}")
         setattr(self, name, getattr(self, name) + amount)
+
+    def inc_set_amount(self, name: str, amount: int = 1):
+        if not hasattr(self, name):
+            raise AttributeError(f"Unknown stat: {name}")
+        setattr(self, name, getattr(self, name) + amount)
+
 
 
     def to_dict(self):
@@ -123,6 +130,7 @@ class PlayerStats(BaseStats):
     rating_delta: float = 0.0
     live_rating: float = 0.0
     afl_fantasy: int = 0
+    time_on_ground_minutes: float = 0.0
 
     def inc_fantasy(self, amount: int):
         # `afl_fantasy` is a numeric attribute on this dataclass; update it directly

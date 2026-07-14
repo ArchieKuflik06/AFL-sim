@@ -1,4 +1,4 @@
-from models.team import Team
+from features.team import Team
 '''
 to do: post hoc - score involvements, scores
 added stat events ground ball gets one percenters
@@ -32,18 +32,6 @@ class Match:
         print(self.home_team.score, self.away_team.score)
         return self.home_team.score, self.away_team.score
     
-    def event_review(self, event, overturned=False, new_event_type=None):
-        player = event.get_player() if hasattr(event, "get_player") else None
-        player_name = getattr(player, "name", None)
-        review_result = {
-            "event_type": getattr(event, "event_type", None),
-            "player": player_name,
-            "reviewed": True,
-            "overturned": overturned,
-            "new_event_type": new_event_type,
-        }
-        print(f"Review for {player_name}: overturned={overturned}")
-        return review_result
     
     def rank_top_scorers(self):
         all_players = self.home_team.players + self.away_team.players
@@ -55,4 +43,18 @@ class Match:
         print("\nTOP 5 SCORERS BY live ranking")
         top_scorers_live = sorted(all_players, key=lambda p: p.current_game_stats.live_rating, reverse=True)
         for player in top_scorers_live[0:5]:
-            print(player.name, player.current_game_stats.live_rating)       
+            print(player.name, player.current_game_stats.live_rating)    
+               
+    def get_team(self, name):
+        if self.home_team.name == name:
+            return self.home_team
+        if self.away_team.name == name:
+            return self.away_team
+        raise ValueError(f"Team '{name}' not found in this match")
+
+    def get_player(self, name):
+        for team in (self.home_team, self.away_team):
+            for player in team.players:
+                if player.name == name:
+                    return player
+        raise ValueError(f"Player '{name}' not found in this match")

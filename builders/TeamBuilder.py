@@ -1,4 +1,4 @@
-from models.team import Team
+from features.team import Team
 
 class TeamBuilder:
     def __init__(self, name):

@@ -1,9 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-
-from Data_Classes import raw_to_rating
-import models.team as team
-
+from game_stats.Data_Classes import raw_to_rating
 
 class FreeKickReason(Enum):
     # Individual High-Frequency Infractions
@@ -13,6 +10,8 @@ class FreeKickReason(Enum):
     HOLDING_MAN = "Holding the Man"
     OUT_ON_FULL = "Out on the Full"
     INSUFFICIENT_INTENT = "Insufficient Intent"  
+    LAST_DISPOSAL = "Lasso"  
+
     
     # Parent Categories (Grouped low-frequency/technical infractions)
     ILLEGAL_CONTACT = "Prohibited Contact"       
@@ -20,11 +19,12 @@ class FreeKickReason(Enum):
     DELAY_OF_GAME = "Delay of Game"               
     TECHNICAL_BREACH = "Technical Breach"     
 
-
 class Event(ABC):
     """Root abstract class for all match events."""
 
-    def __init__(self, player, time, quarter, team):
+    def __init__(self, player, time, quarter, team, event_id=None):
+        self.id = event_id          
+        self.event_id = event_id
         self.player = player
         self.time = time
         self.quarter = quarter
@@ -45,19 +45,27 @@ class Event(ABC):
     def _get_player_stats(self):
         return self.player_stats()
     
-    def _increment_stats(self, entity, *stat_names):
-        #given stats names increments the stat for the given entity
+    def _increment_stats(self, entity, *stat_names, amount=1):
         stats = self._get_stats_for(entity)
         if stats is None:
             return None
         for stat_name in stat_names:
-            stats.inc(stat_name)
+            stats.inc(stat_name, amount=amount)
         return stats
 
-    def _increment_shared_stats(self, *stat_names):
-        #increments the given stats for both the player and the team
-        self._increment_stats(self.player, *stat_names)
-        self._increment_stats(self.team, *stat_names)
+    def _increment_shared_stats(self, *stat_names, amount=1):
+        self._increment_stats(self.player, *stat_names, amount=amount)
+        self._increment_stats(self.team, *stat_names, amount=amount)
+
+    def _increment_player_rating(self, player, *stat_names, amount=1):
+        stats = self._get_stats_for(player)
+        if stats is None:
+            return None
+        for stat_name in stat_names:
+            stats.inc_rating(player.getWeightings().get_weight(stat_name) * amount)
+        if hasattr(player, "current_game_stats"):
+            player.rating = stats.live_rating
+        return stats
 
     def _increment_team_stats(self, *stat_names):
         return self._increment_stats(self.team, *stat_names)
@@ -66,15 +74,6 @@ class Event(ABC):
         self._increment_stats(player, *stat_names)
         self._increment_stats(team, *stat_names)
 
-    def _increment_player_rating(self, player, *stat_names):
-        stats = self._get_stats_for(player)
-        if stats is None:
-            return None
-        for stat_name in stat_names:
-            stats.inc_rating(player.getWeightings().get_weight(stat_name))
-        if hasattr(player, "current_game_stats"):
-            player.rating = stats.live_rating
-        return stats
 
     def _increment_player_fantasy(self, player, weight_key, count=1):
         stats = self._get_stats_for(player)
@@ -104,6 +103,10 @@ class Event(ABC):
             details.append(f"{distance}m")
 
         return f"{base} ({', '.join(details)})" if details else base
+    
+    def ends_chain(self):
+        """Determine if this event ends the current chain."""
+        return False  # Default implementation; override in subclasses if needed
 
     @property
     @abstractmethod
@@ -118,6 +121,9 @@ class Event(ABC):
     @abstractmethod
     def display_event(self):
         raise NotImplementedError()
+    
+    def undo(self):
+        pass
 
 
 class DisposalEvent(Event, ABC):
@@ -133,8 +139,9 @@ class DisposalEvent(Event, ABC):
                  is_clanger=False,
                  is_score_involvement=False,
                  is_goal_assist=False,
-                 distance=None):
-        super().__init__(player, time, quarter, team)
+                 distance=None,
+                 event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
         self.is_effective = is_effective
         self.is_contested = is_contested
         self.is_clearance = is_clearance
@@ -151,16 +158,16 @@ class DisposalEvent(Event, ABC):
     def disposal_type(self):
         raise NotImplementedError()
 
-    def apply(self):
+    def apply(self, amount=1):
         """Apply shared disposal stats to both player and team totals."""
-        self._increment_shared_stats("disposals")
+        self._increment_shared_stats("disposals", amount=amount)
 
         if self.disposal_type == "kick":
-            self._increment_shared_stats("kicks")
-            self._increment_player_rating(self.player, "kicks")
+            self._increment_shared_stats("kicks", amount=amount)
+            self._increment_player_rating(self.player, "kicks", amount=amount)
         elif self.disposal_type == "handball":
-            self._increment_shared_stats("handballs")
-            self._increment_player_rating(self.player, "handballs")
+            self._increment_shared_stats("handballs", amount=amount)
+            self._increment_player_rating(self.player, "handballs", amount=amount)
 
         for name, active in [("clearances", self.is_clearance),
                              ("i50_entries", self.is_i50),
@@ -170,8 +177,8 @@ class DisposalEvent(Event, ABC):
                              ("turnovers", self.is_turnover),
                              ("clangers", self.is_clanger)]:
             if active:
-                self._increment_shared_stats(name)
-                self._increment_player_rating(self.player, name)
+                self._increment_shared_stats(name, amount=amount)
+                self._increment_player_rating(self.player, name, amount=amount)
 
     def display_event(self):
         stats = self._get_player_stats()
@@ -189,6 +196,10 @@ class DisposalEvent(Event, ABC):
             (self.is_clanger,    "clanger",    "clangers"),
         ]
         return self._format_flagged_message(base, stats, flags, distance=self.distance)
+    
+    def ends_chain(self):
+        """Determine if this disposal event ends the current chain."""
+        return self.is_turnover or self.is_clanger
 
 
 class KickEvent(DisposalEvent):
@@ -205,7 +216,8 @@ is_effective=False,
                  is_clanger=False,
                  is_score_involvement=False,
                  is_goal_assist=False,
-                 distance=None):
+                 distance=None,
+                 event_id=None):
         super().__init__(player, time, quarter, team,
                          is_effective=is_effective,
                          is_contested=is_contested,
@@ -216,7 +228,8 @@ is_effective=False,
                          is_clanger=is_clanger,
                          is_score_involvement=is_score_involvement,
                          is_goal_assist=is_goal_assist,
-                         distance=distance)
+                         distance=distance,
+                         event_id=event_id)
 
     @property
     def event_type(self):
@@ -239,7 +252,8 @@ is_effective=False,
                  is_clanger=False,
                  is_score_involvement=False,
                  is_goal_assist=False,
-                 distance=None):
+                 distance=None,
+                 event_id=None):
         super().__init__(player, time, quarter, team,
                          is_effective=is_effective,
                          is_contested=is_contested,
@@ -250,7 +264,8 @@ is_effective=False,
                          is_clanger=is_clanger,
                          is_score_involvement=is_score_involvement,
                          is_goal_assist=is_goal_assist,
-                         distance=distance)
+                         distance=distance,
+                         event_id=event_id)
 
     @property
     def event_type(self):
@@ -274,16 +289,19 @@ class ScoreEvent(KickEvent, ABC):
     def score_value(self):
         raise NotImplementedError()
     
-    def apply(self):
-        super().apply()
+    def apply(self, amount=1):
+        super().apply(amount=amount)
         if self.score_type == "goal":
-            self._increment_shared_stats("goals")
-            self._increment_player_rating(self.player, "goals")
-            self.team.score += self.score_value
+            self._increment_shared_stats("goals", amount=amount)
+            self._increment_player_rating(self.player, "goals", amount=amount)
+            self.team.score += self.score_value * amount
         elif self.score_type == "behind":
-            self._increment_shared_stats("behinds")
-            self._increment_player_rating(self.player, "behinds")
-            self.team.score += self.score_value
+            self._increment_shared_stats("behinds", amount=amount)
+            self._increment_player_rating(self.player, "behinds", amount=amount)
+            self.team.score += self.score_value * amount
+
+    def undo(self):
+        self.apply(amount=-1)
 
     def display_event(self):
         stats = self._get_player_stats()
@@ -304,6 +322,10 @@ class ScoreEvent(KickEvent, ABC):
         except Exception:
             pass
         self._increment_player_fantasy(self.player, self.score_type)
+
+    def ends_chain(self):
+        """Score events end the current chain."""
+        return True
 
 
 class GoalEvent(ScoreEvent):
@@ -334,10 +356,10 @@ class BehindEvent(ScoreEvent):
         return 1
     
 
-class tackle(Event):
+class Tackle(Event):
     """Tackle event: records the tackler and the tackled player."""
-    def __init__(self, tackler, tackled_player, time, quarter, team):
-        super().__init__(tackler, time, quarter, team)
+    def __init__(self, tackler, tackled_player, time, quarter, team, event_id=None):
+        super().__init__(tackler, time, quarter, team, event_id=event_id)
         self.tackled_player = tackled_player
 
     def apply(self):
@@ -366,8 +388,9 @@ class Mark(Event):
                  is_i50=False,
                  is_contested=False,
                  is_intercept=False,
-                 distance=None):
-        super().__init__(player, time, quarter, team)
+                 distance=None,
+                 event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
         self.is_i50 = is_i50
         self.is_contested = is_contested
         self.is_intercept = is_intercept
@@ -408,8 +431,8 @@ class Mark(Event):
 
 class FreeDisposal(Event):
     """Free kick event: records the player who received the free kick and who committed it."""
-    def __init__(self, got_free_kick_player, committed_free_kick_player, time, quarter, team, reason=None):
-        super().__init__(got_free_kick_player, time, quarter, team)
+    def __init__(self, got_free_kick_player, committed_free_kick_player, time, quarter, team, reason=None, event_id=None):
+        super().__init__(got_free_kick_player, time, quarter, team, event_id=event_id)
         self.committed_free_kick_player = committed_free_kick_player
         self.reason = reason if isinstance(reason, FreeKickReason) else FreeKickReason.ILLEGAL_CONTACT
 
@@ -447,8 +470,9 @@ class FreeDisposal(Event):
 class Hitout(Event):
     def __init__(self, player, time, quarter, team,
                  is_to_advantage=False,
-                 opponent=None):
-        super().__init__(player, time, quarter, team)
+                 opponent=None,
+                 event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
         self.is_to_advantage = is_to_advantage
         self.opponent = opponent
 
@@ -476,8 +500,8 @@ class Hitout(Event):
         self._increment_player_fantasy(self.player, "hitout")
 
 class Spoil(Event):
-    def __init__(self, player, time, quarter, team):
-        super().__init__(player, time, quarter, team)
+    def __init__(self, player, time, quarter, team, event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
 
 
     def apply(self):
@@ -498,4 +522,59 @@ class Spoil(Event):
         return "spoil"
     
 
+
+#
+class GroundBallGet(Event):
+    def __init__(self, player, time, quarter, team, event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
+
+    def apply(self):
+        self._increment_shared_stats("ground_ball_gets")
+        self._increment_player_rating(self.player, "ground_ball_gets")
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+        return f"Ground Ball Get #{getattr(stats, 'ground_ball_gets', 0)} by {self.player.name} at {self.time} mins in Q{self.quarter}"
+
+    @property
+    def event_type(self):
+        return "ground_ball_get"
+    
+class OnePercenter(Event):
+    def __init__(self, player, time, quarter, team, event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
+
+    def apply(self):
+        self._increment_shared_stats("one_percenters")
+        self._increment_player_rating(self.player, "one_percenters")
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+        return f"One Percenter #{getattr(stats, 'one_percenters', 0)} by {self.player.name} at {self.time} mins in Q{self.quarter}"
+
+    @property
+    def event_type(self):
+        return "one_percenter"
+    
+class KnockOns(Event):
+    def __init__(self, player, time, quarter, team, event_id=None):
+        super().__init__(player, time, quarter, team, event_id=event_id)
+
+    def apply(self):
+        self._increment_shared_stats("knock_ons")
+        self._increment_player_rating(self.player, "knock_ons")
+
+    def display_event(self):
+        stats = getattr(self.player, "current_game_stats", None)
+        if stats is None:
+            return
+        return f"Knock On #{getattr(stats, 'knock_ons', 0)} by {self.player.name} at {self.time} mins in Q{self.quarter}"
+
+    @property
+    def event_type(self):
+        return "knock_on"
     

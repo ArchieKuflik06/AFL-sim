@@ -1,6 +1,6 @@
 import json
 
-from event_creator import EventCreater
+from bin.event_creator import EventCreater
 
 
 def test_write_events_json(tmp_path):
