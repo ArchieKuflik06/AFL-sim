@@ -907,8 +907,8 @@
     "time": 2.05,
     "quarter": 3,
     "team": "Hawthorn Hawks",
-    "player_off": "Jai Newcombe",
-    "player_on": "Will Day",
+    "player_off": "James Sicily",
+    "player_on": "Lloyd Meek",
     "event_id": "e96"
   },
   {
@@ -917,7 +917,7 @@
     "quarter": 3,
     "team": "Richmond Tigers",
     "player_off": "Tim Taranto",
-    "player_on": "Jack Riewoldt",
+    "player_on": "Tom Lynch",
     "event_id": "e97"
   },
   {
@@ -1198,23 +1198,23 @@
     "event_id": "e126"
   },
   {
-    "event_type": "interchange",
-    "time": 2.05,
-    "quarter": 4,
-    "team": "Hawthorn Hawks",
-    "player_off": "James Sicily",
-    "player_on": "James Worpel",
-    "event_id": "e127"
-  },
+  "event_id": "e127",
+  "event_type": "interchange",
+  "time": 2.05,
+  "quarter": 4,
+  "team": "Hawthorn Hawks",
+  "player_off": "Lloyd Meek",
+  "player_on": "James Sicily"
+},
   {
-    "event_type": "interchange",
-    "time": 2.07,
-    "quarter": 4,
-    "team": "Richmond Tigers",
-    "player_off": "Shai Bolton",
-    "player_on": "David Astbury",
-    "event_id": "e128"
-  },
+  "event_id": "e128",
+  "event_type": "interchange",
+  "time": 2.07,
+  "quarter": 4,
+  "team": "Richmond Tigers",
+  "player_off": "Shai Bolton",
+  "player_on": "Tim Taranto"
+},
   {
     "event_id": "e129",
     "event_type": "ground_ball_get",

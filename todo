@@ -4,12 +4,9 @@
  Quarter-level stat aggregation — decide now whether Stats snapshots per quarter or the UI recomputes from Match.events - once SQL
  Validation/error handling — decide skip-and-log vs. hard-fail for malformed events (unknown event_type, missing player/team names) before this becomes a real API feed
 
- chain - score involvements/goal assists
+ chain - test stat/end reasons with kick ins and turnovers - freekkicks
 
 3. Additive engine features (safe anytime, no reshaping needed)
-
- Remaining event types: rushed/touched behinds
- fix efficiency
 
 
 

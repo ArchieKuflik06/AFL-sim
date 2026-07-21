@@ -42,8 +42,8 @@ class BaseStats:
     frees_against: int = 0
     hitouts: int = 0
     hitouts_to_advantage: int = 0
-    disposal_efficiency: float = effective_disposals / disposals if disposals > 0 else 0.0
-    goal_accuracy: float = goals / (behinds + goals) if (behinds + goals) > 0 else 0.0
+    disposal_efficiency: float = 0.0
+    goal_accuracy: float = 0.0
     one_percenters: int = 0
     ground_ball_gets: int = 0
     knock_ons: int = 0
@@ -60,7 +60,22 @@ class BaseStats:
             raise AttributeError(f"Unknown stat: {name}")
         setattr(self, name, getattr(self, name) + amount)
 
+    def set_amount(self, name: str, amount: int):
+        if not hasattr(self, name):
+            raise AttributeError(f"Unknown stat: {name}")
+        setattr(self, name, amount)
 
+    def calc_disposal_efficiency(self):
+        if self.disposals > 0:
+            self.disposal_efficiency = round((self.effective_disposals / self.disposals) * 100, 2)
+        else:
+            self.disposal_efficiency = 0.0
+
+    def calc_goal_accuracy(self):
+        if (self.goals + self.behinds) > 0:
+            self.goal_accuracy = round((self.goals / (self.goals + self.behinds)) * 100, 2)
+        else:
+            self.goal_accuracy = 0.0
 
     def to_dict(self):
         return asdict(self)
@@ -95,6 +110,7 @@ class RatingWeightings:
     hitouts_to_advantage: float = 0.200
     one_percenters: float = 0.333
     ground_ball_gets: float = 0.200
+    knock_ons: float = 0.00
 
     def to_dict(self):
         return asdict(self)
@@ -151,7 +167,17 @@ class TeamStats(BaseStats):
     """Team-only counters."""
     inside_50s_scored_from: int = 0
     points_from_turnovers: int = 0
-    time_in_forward_half: float = 0.0
+    time_winning: int = 0
+    rushed_behinds: int = 0
+    points_from_kick_ins: int = 0
+    points_from_stoppage: int = 0
+    points_from_center_bounces: int = 0
+
+    def calc_i50s_scored_from(self):
+        if self.i50_entries > 0:
+            self.inside_50s_scored_from = round((self.goals + self.behinds) / self.i50_entries * 100, 2)
+        else:
+            self.inside_50s_scored_from = 0.0
 
 
     

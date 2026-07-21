@@ -39,3 +39,4 @@ class Player:
         print(self.rating)
         return self.rating
     
+    

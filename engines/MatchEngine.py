@@ -1,9 +1,12 @@
+
 from builders.MatchBuilder import MatchBuilder
 from builders.TeamBuilder import TeamBuilder
 from engines.EventProcessor import EventProcessor
 from engines.EventLoader import EventLoader
-from features.player import Player
 from engines.ChainTracker import ChainTracker
+from game_stats.TeamStats import CalcTeamStats
+from features import Match, player
+from features.player import Player
 from features.MatchEvents import EventReview
 
 
@@ -12,8 +15,9 @@ class MatchEngine:
     def __init__(self):
         self.match = None
         self.event_processor = None
-
-    
+        self.chain_tracker = None
+        self.home_stats_calc = None
+        self.away_stats_calc = None
 
     def create_match(self):
         home_team = self.create_home_team()
@@ -22,15 +26,25 @@ class MatchEngine:
         match_builder = MatchBuilder()
         self.match = match_builder.build(home_team, away_team, "MCG")
 
-        self.event_processor = EventProcessor(self.match)
-        self.chain_tracker = ChainTracker()
-        self.event_engine = EventLoader(self.match, self.chain_tracker)
-      
+        # One CalcTeamStats per team, shared between EventProcessor (clock-driven
+        # stats) and MatchEngine's chain-closed dispatch (chain-driven stats).
+        self.home_stats_calc = CalcTeamStats(home_team, home_team.current_game_stats)
+        self.away_stats_calc = CalcTeamStats(away_team, away_team.current_game_stats)
 
-        self.chain_tracker = ChainTracker()
+        # Single ChainTracker instance, owned here, shared with EventLoader.
+        self.chain_tracker = ChainTracker(on_chain_closed=self._dispatch_chain_closed)
+        self.event_engine = EventLoader(self.match, self.chain_tracker)
+
+        self.event_processor = EventProcessor(
+            self.match,
+            team_stats_calcs=(self.home_stats_calc, self.away_stats_calc),
+        )
 
         return self.match
 
+    def _dispatch_chain_closed(self, chain):
+        self.home_stats_calc.on_chain_closed(chain)
+        self.away_stats_calc.on_chain_closed(chain)
 
     def create_home_team(self):
 
@@ -48,9 +62,8 @@ class MatchEngine:
             Player("Will Day", 1, "Defender", None),
             Player("James Worpel", 5, "Midfield", None),
         ]
-    
-        return builder.build()
 
+        return builder.build()
 
     def create_away_team(self):
 
@@ -70,20 +83,28 @@ class MatchEngine:
         ]
 
         return builder.build()
-    
+
     def run(self, raw_events):
 
         events = [self.event_engine.load_event(d) for d in raw_events]
         events.sort(key=lambda e: (e.quarter, e.time))
 
         for event in events:
-           #event.player.display_stats()
             self.event_processor.process(event)
             self.chain_tracker.process_chain(event)
 
-    
         self.chain_tracker.finalize()
-        return self.match 
+
+        for player in self.match.home_team.on_ground:
+            player.display_stats()
+        for player in self.match.away_team.on_ground:
+            player.display_stats()
+
+        for team in [self.match.home_team, self.match.away_team]:
+            team.display_stats()
+
+        self.match.rank_top_scorers()
+        return self.match
 
     def review_event(self, target_time, target_quarter, overturned=False, new_event=None):
         target_event = next(
@@ -92,9 +113,4 @@ class MatchEngine:
         )
         review = EventReview(target_event, self.chain_tracker, overturned=overturned, new_event=new_event)
         self.event_processor.process(review)
-        return review    
-
-
-
-
-        
+        return review

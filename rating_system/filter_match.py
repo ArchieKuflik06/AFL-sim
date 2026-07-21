@@ -69,7 +69,7 @@ STAT_COLS = [
     "contested_possessions", "marks_inside_50", "contested_marks",
     "frees_for", "frees_against", "clangers", "goal_assists",
     "effective_disposals", "hitouts_to_advantage", "intercept_marks",
-    "spoils", "ground_ball_gets", "one_percenters",
+    "spoils", "ground_ball_gets", "one_percenters", "knock_ons",
 ]
 
 percentiles = [25, 50, 75, 90, 95, 99]

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from game_stats.Data_Classes import raw_to_rating
+
 
 class FreeKickReason(Enum):
     # Individual High-Frequency Infractions
@@ -82,6 +82,14 @@ class Event(ABC):
         weight = player.getFantasyWeightings().get_weight(weight_key)
         stats.inc_fantasy(int(weight * count))
         return stats
+    
+    def _calc_goal_accuracy(self, player):
+        stats = self._get_stats_for(player)
+        stats.calc_goal_accuracy()
+    
+    def _calc_disposal_efficiency(self, player):
+        stats = self._get_stats_for(player)
+        stats.calc_disposal_efficiency()
 
     def _format_base_event(self, label, counter_attr, stats=None):
         if stats is None:
@@ -107,6 +115,11 @@ class Event(ABC):
     def ends_chain(self):
         """Determine if this event ends the current chain."""
         return False  # Default implementation; override in subclasses if needed
+
+    @property
+    def chain_end_reason(self):
+        """Why this event ended the chain. Only meaningful when ends_chain() is True."""
+        return "turnover"
 
     @property
     @abstractmethod
@@ -179,6 +192,8 @@ class DisposalEvent(Event, ABC):
             if active:
                 self._increment_shared_stats(name, amount=amount)
                 self._increment_player_rating(self.player, name, amount=amount)
+
+        self._calc_disposal_efficiency(self.player)
 
     def display_event(self):
         stats = self._get_player_stats()
@@ -277,7 +292,6 @@ is_effective=False,
 
 class ScoreEvent(KickEvent, ABC):
     """Abstract score event for goals and behinds."""
-    #to do implement rushed behinds when starting to do team stats
 
     @property
     @abstractmethod
@@ -288,44 +302,63 @@ class ScoreEvent(KickEvent, ABC):
     @abstractmethod
     def score_value(self):
         raise NotImplementedError()
-    
+
+    @property
+    def is_player_attributed(self):
+        """Whether this score event counts toward the player's own stats/rating
+        (False for team-only events like rushed behinds — the player is still
+        recorded on the event, they just aren't credited for it statistically)."""
+        return True
+
+    @property
+    def _stat_key(self):
+        return self.score_type + "s"
+
     def apply(self, amount=1):
-        super().apply(amount=amount)
-        if self.score_type == "goal":
-            self._increment_shared_stats("goals", amount=amount)
-            self._increment_player_rating(self.player, "goals", amount=amount)
-            self.team.score += self.score_value * amount
-        elif self.score_type == "behind":
-            self._increment_shared_stats("behinds", amount=amount)
-            self._increment_player_rating(self.player, "behinds", amount=amount)
-            self.team.score += self.score_value * amount
+        if self.is_player_attributed:
+            super().apply(amount=amount)
+            self._increment_player_rating(self.player, self._stat_key, amount=amount)
+            self._calc_goal_accuracy(self.player)
+            self._increment_shared_stats(self._stat_key, amount=amount)
+        else:
+            self._increment_team_stats(self._stat_key, amount=amount)
+
+        self.team.score += self.score_value * amount
 
     def undo(self):
         self.apply(amount=-1)
 
-    def display_event(self):
-        stats = self._get_player_stats()
-        if stats is None:
-            return
-
-        base = self._format_base_event(self.score_type.title(), self.score_type + "s", stats=stats)
-        flags = [
-            (self.is_contested,  "contested",  "contested_disposals"),
-            (self.is_i50,        "inside 50",  "i50_entries"),
-        ]
-        return self._format_flagged_message(base, stats, flags, distance=self.distance)
-
     def apply_fantasy(self):
-        # Apply underlying disposal fantasy and then add the score bonus.
+        if not self.is_player_attributed:
+            return
         try:
             super().apply_fantasy()
         except Exception:
             pass
         self._increment_player_fantasy(self.player, self.score_type)
 
+    def display_event(self):
+        if not self.is_player_attributed:
+            team_name = getattr(self.team, "name", "Unknown")
+            return f"Rushed Behind by {team_name} at {self.time} mins in Q{self.quarter}"
+
+        stats = self._get_player_stats()
+        if stats is None:
+            return
+
+        base = self._format_base_event(self.score_type.title(), self.score_type + "s", stats=stats)
+        flags = [
+            (self.is_contested, "contested", "contested_disposals"),
+            (self.is_i50,       "inside 50", "i50_entries"),
+        ]
+        return self._format_flagged_message(base, stats, flags, distance=self.distance)
+
     def ends_chain(self):
-        """Score events end the current chain."""
         return True
+
+    @property
+    def chain_end_reason(self):
+        return self.score_type
 
 
 class GoalEvent(ScoreEvent):
@@ -354,6 +387,19 @@ class BehindEvent(ScoreEvent):
     @property
     def score_value(self):
         return 1
+    
+class RushedBehindEvent(BehindEvent):
+    @property
+    def event_type(self):
+        return "rushed_behind"
+
+    @property
+    def score_type(self):
+        return "rushed_behind"
+
+    @property
+    def is_player_attributed(self):
+        return False
     
 
 class Tackle(Event):

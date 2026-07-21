@@ -29,6 +29,10 @@ class MatchEvent(ABC):
     def ends_chain(self):
         return False
 
+    @property
+    def chain_end_reason(self):
+        return "turnover"
+
 
 class Interchange(MatchEvent):
     def __init__(self, player_off, player_on, time, quarter, team, event_id=None):
