@@ -23,6 +23,14 @@ Weaknesses and improvements
 To Run
 
 python3 main.py
+can toggle the speed of output, all at once or by the events time in event processor 
+Options:
+
+debug=True — display events instantly
+debug=False, playback_speed=1.0 — real time
+playback_speed=2.0 — twice as fast
+playback_speed=0.1 — slow motion
+
 
 Project Structure
 main.py — application entry point
