@@ -1,3 +1,4 @@
+# Small builder for creating match objects.
 from features.Match import Match
 
 class MatchBuilder:

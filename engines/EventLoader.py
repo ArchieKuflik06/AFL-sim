@@ -1,6 +1,8 @@
+# Maps raw event names to concrete event classes.
 from features.PlayerEvents import (
     BehindEvent, FreeDisposal, GoalEvent, HandballEvent, Hitout, KickEvent,
     Mark, Tackle, FreeKickReason, GroundBallGet, OnePercenter, KnockOns,
+    RushedBehindEvent, Spoil
 )
 from features.MatchEvents import Interchange, OutOfBounds, EventReview
 
@@ -16,6 +18,8 @@ class EventLoader:
         "knock_on": KnockOns,
         "interchange": Interchange,
         "out_of_bounds": OutOfBounds,
+        "rushed_behind": RushedBehindEvent,
+        "spoil": Spoil
     }
     PLAYER_FIELDS = {"player", "tackler", "tackled_player",
                      "got_free_kick_player", "committed_free_kick_player",

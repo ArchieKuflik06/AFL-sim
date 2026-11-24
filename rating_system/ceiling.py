@@ -1,4 +1,5 @@
 import pandas as pd
+# Small utility related to rating ceilings.
 import numpy as np
 from pathlib import Path
 

@@ -1,3 +1,4 @@
+# Match-level events such as substitutions and reviews.
 from abc import ABC, abstractmethod
 
 
@@ -9,6 +10,17 @@ class MatchEvent(ABC):
         self.time = time
         self.quarter = quarter
         self.team = team
+
+    def is_reviewable(self):
+        """Return True when this event can be the target of an EventReview."""
+        # The default is False so most match events are not review targets by default.
+        return False
+
+    def starts_chain(self):
+        return False
+
+    def changes_possession(self):
+        return False
 
     @abstractmethod
     def apply(self):
@@ -39,6 +51,9 @@ class Interchange(MatchEvent):
         super().__init__(player_on, time, quarter, team, event_id=event_id)
         self.player_off = player_off
 
+    def starts_chain(self):
+        return False
+
     def apply(self):
         self.team.interchange([(self.player_off, self.player)], self.time, self.quarter)
 
@@ -53,6 +68,20 @@ class Interchange(MatchEvent):
 class OutOfBounds(MatchEvent):
     def __init__(self, player, time, quarter, team, event_id=None):
         super().__init__(player, time, quarter, team, event_id=event_id)
+
+    def starts_chain(self):
+        return False
+
+    def is_reviewable(self):
+        # Out-of-bounds calls are reviewable because they can change possession or restart state.
+        return True
+
+    def ends_chain(self):
+        return False
+
+    @property
+    def chain_end_reason(self):
+        return "out_of_bounds"
 
     @property
     def event_type(self):
@@ -69,8 +98,6 @@ class OutOfBounds(MatchEvent):
 
 
 class EventReview(MatchEvent):
-    REVIEWABLE_TYPES = ("goal", "behind", "out_of_bounds")
-
     def __init__(self, match, chain_tracker, player, time, quarter, team,
                  review_of, overturned=False, new_event=None, event_id=None):
         super().__init__(player, time, quarter, team, event_id=event_id)
@@ -81,10 +108,14 @@ class EventReview(MatchEvent):
         self.new_event = new_event
         self.event = None
 
+    def starts_chain(self):
+        return True
+
     def _resolve_target(self):
         for e in self.match.events:
             if getattr(e, "event_id", None) == self.review_of:
-                if e.event_type not in self.REVIEWABLE_TYPES:
+                # Reviews should only target events that explicitly allow them.
+                if not e.is_reviewable():
                     raise ValueError(f"{e.event_type} events cannot be reviewed")
                 return e
         raise ValueError(f"No event found with id {self.review_of}")
@@ -92,6 +123,7 @@ class EventReview(MatchEvent):
     def apply(self):
         self.event = self._resolve_target()
         if self.overturned:
+            # Undo the original result, then apply a replacement event from the review.
             self.event.undo()
             if self.new_event is not None:
                 self.new_event.apply()

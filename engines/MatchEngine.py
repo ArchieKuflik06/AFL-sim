@@ -1,4 +1,4 @@
-
+# Orchestrates match setup, event processing, and stats.
 from builders.MatchBuilder import MatchBuilder
 from builders.TeamBuilder import TeamBuilder
 from engines.EventProcessor import EventProcessor

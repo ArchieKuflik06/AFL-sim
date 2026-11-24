@@ -1,3 +1,4 @@
+# Core stat containers and rating helpers.
 from dataclasses import dataclass, asdict
 
 RAW_RATING_FLOOR = -5.0
@@ -20,8 +21,6 @@ class BaseStats:
     handballs: int = 0
     disposals: int = 0
     goals: int = 0
-    goal_assists: int = 0
-    score_involvements: int = 0
     behinds: int = 0
     tackles: int = 0
     spoils: int = 0
@@ -143,6 +142,8 @@ class FantasyWeightings:
 @dataclass    
 class PlayerStats(BaseStats):
     """Player-only counters."""
+    score_involvements: int = 0
+    goal_assists: int = 0
     rating_delta: float = 0.0
     live_rating: float = 0.0
     afl_fantasy: int = 0

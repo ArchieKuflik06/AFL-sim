@@ -1,3 +1,4 @@
+# Entry point for running a match from saved event JSON.
 import json
 from engines.MatchEngine import MatchEngine
 import features.PlayerEvents

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+# Additional exploratory script for rating work.
 from pathlib import Path
 
 csv_path = Path(__file__).resolve().parent / "afl_stats_2024.csv"

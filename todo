@@ -4,7 +4,7 @@
  Quarter-level stat aggregation — decide now whether Stats snapshots per quarter or the UI recomputes from Match.events - once SQL
  Validation/error handling — decide skip-and-log vs. hard-fail for malformed events (unknown event_type, missing player/team names) before this becomes a real API feed
 
- chain - test stat/end reasons with kick ins and turnovers - freekkicks
+ chain - test stat/end reasons with kick ins and turnovers - freekicks also need to start chains 
 
 3. Additive engine features (safe anytime, no reshaping needed)
 
@@ -13,8 +13,8 @@
 4. Testing (do alongside 2–3, before UI) and comments read me
 
  Unit tests for EventEngine.load_event (correct class dispatch, name/team resolution, reason conversion)
- socre reviews proper testing
- Unit tests for a few Event.apply() methods (stat increments correct, especially anything with conditional flags)
+
+ 
 
 5. UI
 

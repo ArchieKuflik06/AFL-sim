@@ -1,3 +1,4 @@
+# Builds exportable event payloads from raw event data.
 import json
 from pathlib import Path
 from re import match

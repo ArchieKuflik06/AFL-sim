@@ -1,3 +1,4 @@
+# Builder for assembling starting and bench line-ups.
 from features.team import Team
 
 class TeamBuilder:

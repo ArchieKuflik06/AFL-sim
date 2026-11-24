@@ -1,3 +1,4 @@
+# Team state, line-up tracking, and interchange logic.
 from features import player
 from game_stats.Data_Classes import TeamStats as Stats
 
@@ -18,22 +19,10 @@ class Team:
         """
         for player_off, player_on in swaps:
             if player_off not in self.on_ground:
-                print("Current players on ground:")
-                self.display_on_ground_players()
-
-                print("Attempting to sub off:")
-                print(player_off.name)
-
                 raise ValueError(f"{player_off.name} is not currently on the ground")
 
 
             if player_on in self.on_ground:
-                print("Current players on ground:")
-                self.display_off_ground_players()
-
-                print("Attempting to sub on:")
-                print(player_on.name)
-
                 raise ValueError(f"{player_on.name} is already on the ground")
 
             self.on_ground.discard(player_off)

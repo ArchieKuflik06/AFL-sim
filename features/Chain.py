@@ -1,3 +1,4 @@
+# A chain groups related events until a scoring or stoppage outcome.
 class Chain:
     def __init__(self, team, quarter, start_event, start_reason=None):
         self.team = team
@@ -38,6 +39,7 @@ class Chain:
             return []
 
         players = []
+        # Explicitly marked players take priority over inferred disposal history.
         for event in self.events:
             if getattr(event, "is_score_involvement", False):
                 players.append(event.player)
@@ -49,6 +51,7 @@ class Chain:
         if score_event_index is None:
             return []
 
+        # If no involvement flags are present, effective disposals before the score are credited.
         for event in self.events[:score_event_index]:
             if getattr(event, "event_type", None) in {"kick", "handball"} and getattr(event, "is_effective", False):
                 players.append(event.player)
@@ -56,6 +59,7 @@ class Chain:
         if players:
             return list(dict.fromkeys(players))
 
+        # The scorer remains involved even when no earlier disposal is identifiable.
         scorer = self.events[score_event_index].player if score_event_index is not None else None
         if scorer is not None:
             return [scorer]
@@ -70,6 +74,7 @@ class Chain:
         if score_event_index is None:
             return []
 
+        # A goal assist is the nearest effective kick or handball before the goal.
         for event in reversed(self.events[:score_event_index]):
             if getattr(event, "event_type", None) in {"kick", "handball"} and getattr(event, "is_effective", False):
                 return [event.player]

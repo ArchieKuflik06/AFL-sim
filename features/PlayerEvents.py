@@ -1,3 +1,4 @@
+# Player-level event classes and shared stat helpers.
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -9,6 +10,7 @@ class FreeKickReason(Enum):
     PUSH_IN_BACK = "Push in the Back"
     HOLDING_MAN = "Holding the Man"
     OUT_ON_FULL = "Out on the Full"
+    FIFTY_METRE = "50m Free Kick"
     INSUFFICIENT_INTENT = "Insufficient Intent"  
     LAST_DISPOSAL = "Lasso"  
 
@@ -112,8 +114,23 @@ class Event(ABC):
 
         return f"{base} ({', '.join(details)})" if details else base
     
+    def starts_chain(self):
+        """Return True when this event can start a possession chain."""
+        return False
+
+    def is_reviewable(self):
+        """Return True when this event can be the target of an EventReview."""
+        # Reviewable events opt in here rather than being handled by a central list.
+        return False
+
+    def changes_possession(self):
+        """Return True when this event should start a new chain because possession changes."""
+        return False
+
     def ends_chain(self):
         """Determine if this event ends the current chain."""
+        # Chain-ending rules are still expressed per event here; a more explicit
+        # interface could make this easier to extend.
         return False  # Default implementation; override in subclasses if needed
 
     @property
@@ -211,6 +228,12 @@ class DisposalEvent(Event, ABC):
             (self.is_clanger,    "clanger",    "clangers"),
         ]
         return self._format_flagged_message(base, stats, flags, distance=self.distance)
+
+    def changes_possession(self):
+        return self.is_turnover or self.is_clanger
+
+    def starts_chain(self):
+        return True
     
     def ends_chain(self):
         """Determine if this disposal event ends the current chain."""
@@ -293,6 +316,10 @@ is_effective=False,
 class ScoreEvent(KickEvent, ABC):
     """Abstract score event for goals and behinds."""
 
+    def is_reviewable(self):
+        # Scores are reviewable because a review can change the result from goal to behind or vice versa.
+        return True
+
     @property
     @abstractmethod
     def score_type(self):
@@ -316,42 +343,20 @@ class ScoreEvent(KickEvent, ABC):
 
     def apply(self, amount=1):
         if self.is_player_attributed:
+            # Player-attributed scores update both the player and the team totals.
             super().apply(amount=amount)
             self._increment_player_rating(self.player, self._stat_key, amount=amount)
-            self._calc_goal_accuracy(self.player)
             self._increment_shared_stats(self._stat_key, amount=amount)
+            self._calc_goal_accuracy(self.player)
         else:
+            # Rushed behinds change the scoreboard but are not credited to an individual player.
             self._increment_team_stats(self._stat_key, amount=amount)
 
         self.team.score += self.score_value * amount
 
     def undo(self):
+        # Negative application reverses every stat and score change made by this event.
         self.apply(amount=-1)
-
-    def apply_fantasy(self):
-        if not self.is_player_attributed:
-            return
-        try:
-            super().apply_fantasy()
-        except Exception:
-            pass
-        self._increment_player_fantasy(self.player, self.score_type)
-
-    def display_event(self):
-        if not self.is_player_attributed:
-            team_name = getattr(self.team, "name", "Unknown")
-            return f"Rushed Behind by {team_name} at {self.time} mins in Q{self.quarter}"
-
-        stats = self._get_player_stats()
-        if stats is None:
-            return
-
-        base = self._format_base_event(self.score_type.title(), self.score_type + "s", stats=stats)
-        flags = [
-            (self.is_contested, "contested", "contested_disposals"),
-            (self.is_i50,       "inside 50", "i50_entries"),
-        ]
-        return self._format_flagged_message(base, stats, flags, distance=self.distance)
 
     def ends_chain(self):
         return True
@@ -428,6 +433,20 @@ class Tackle(Event):
     def apply_fantasy(self):
         self._increment_player_fantasy(self.player, "tackle")
 
+    def starts_chain(self):
+        return False
+
+    def changes_possession(self):
+        # A tackle can force possession to move to the tackler's team.
+        return getattr(self.tackled_player, "team", None) is not None and self.team != self.tackled_player.team
+
+    def ends_chain(self):
+        return self.changes_possession()
+
+    @property
+    def chain_end_reason(self):
+        return "tackle"
+
 class Mark(Event):
     """Mark event: records the player who took the mark."""
     def __init__(self, player, time, quarter, team,
@@ -442,17 +461,24 @@ class Mark(Event):
         self.is_intercept = is_intercept
         self.distance = distance
 
-    def apply(self):
+    def is_reviewable(self):
+        # Marks are reviewable because they can be turned into a score or a different event outcome.
+        return True
+
+    def apply(self, amount=1):
         """Apply shared mark stats to both player and team totals."""
-        self._increment_shared_stats("marks")
-        self._increment_player_rating(self.player, "marks")
+        self._increment_shared_stats("marks", amount=amount)
+        self._increment_player_rating(self.player, "marks", amount=amount)
 
         for name, active in [("marks_inside_50", self.is_i50),
                              ("marks_contested", self.is_contested),
                              ("marks_intercept", self.is_intercept)]:
             if active:
-                self._increment_shared_stats(name)
-                self._increment_player_rating(self.player, name)
+                self._increment_shared_stats(name, amount=amount)
+                self._increment_player_rating(self.player, name, amount=amount)
+
+    def undo(self):
+        self.apply(amount=-1)
 
     def display_event(self):
         stats = self._get_player_stats()
@@ -467,6 +493,11 @@ class Mark(Event):
         ]
         return self._format_flagged_message(base, stats, flags, distance=self.distance)
 
+    def changes_possession(self):
+        return self.is_intercept
+
+    def starts_chain(self):
+        return True
 
     @property
     def event_type(self):
@@ -474,6 +505,7 @@ class Mark(Event):
     
     def apply_fantasy(self):
         self._increment_player_fantasy(self.player, "mark")
+
 
 class FreeDisposal(Event):
     """Free kick event: records the player who received the free kick and who committed it."""
@@ -492,6 +524,12 @@ class FreeDisposal(Event):
             "turnovers",
         )
         self._increment_player_rating(self.committed_free_kick_player, "frees_against", "turnovers")
+
+    def changes_possession(self):
+        return True
+
+    def starts_chain(self):
+        return True
 
     def display_event(self):
         stats_for = self._get_stats_for(self.player)
@@ -529,6 +567,9 @@ class Hitout(Event):
             self._increment_shared_stats("hitouts_to_advantage")
             self._increment_player_rating(self.player, "hitouts_to_advantage")
 
+    def starts_chain(self):
+        return True
+
     def display_event(self):
         stats = self._get_player_stats()
         if stats is None:
@@ -554,6 +595,9 @@ class Spoil(Event):
         self._increment_shared_stats("spoils")
         self._increment_player_rating(self.player, "spoils")
 
+    def starts_chain(self):
+        return False
+
     def apply_fantasy(self):
         self._increment_player_fantasy(self.player, "spoil")
 
@@ -578,6 +622,12 @@ class GroundBallGet(Event):
         self._increment_shared_stats("ground_ball_gets")
         self._increment_player_rating(self.player, "ground_ball_gets")
 
+    def changes_possession(self):
+        return True
+
+    def starts_chain(self):
+        return True
+
     def display_event(self):
         stats = getattr(self.player, "current_game_stats", None)
         if stats is None:
@@ -595,6 +645,12 @@ class OnePercenter(Event):
     def apply(self):
         self._increment_shared_stats("one_percenters")
         self._increment_player_rating(self.player, "one_percenters")
+
+    def starts_chain(self):
+        return False
+
+    def changes_possession(self):
+        return True
 
     def display_event(self):
         stats = getattr(self.player, "current_game_stats", None)
@@ -614,6 +670,9 @@ class KnockOns(Event):
         self._increment_shared_stats("knock_ons")
         self._increment_player_rating(self.player, "knock_ons")
 
+    def starts_chain(self):
+        return True
+
     def display_event(self):
         stats = getattr(self.player, "current_game_stats", None)
         if stats is None:
@@ -623,4 +682,4 @@ class KnockOns(Event):
     @property
     def event_type(self):
         return "knock_on"
-    
+

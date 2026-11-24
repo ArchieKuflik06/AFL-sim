@@ -1,3 +1,4 @@
+# Runs events with timing and debug support.
 import time as time_module
 from features.MatchEvents import EventReview
 
@@ -30,14 +31,14 @@ class EventProcessor:
         is_review = isinstance(event, EventReview)
 
         if not is_review:
-            # Detect quarter change and reset the clock baseline
+            # Match time starts again at zero for each quarter, but a review uses the original timeline.
             if event.quarter != self._last_quarter:
                 self._last_time = 0
                 self._last_quarter = event.quarter
 
             delta_minutes = event.time - self._last_time
 
-            # Real-time playback: sleep unless in debug mode
+            # Optional playback pacing; debug mode processes the timeline instantly.
             if delta_minutes > 0 and not self.debug:
                 delta_seconds = (delta_minutes * 60) / self.playback_speed
                 time_module.sleep(delta_seconds)
@@ -45,10 +46,10 @@ class EventProcessor:
             self.current_quarter = event.quarter
             self.current_time = event.time
 
-            # Time-on-ground only accrues for real, time-advancing events
+            # Time-on-ground accrues only while game time advances between events.
             self.tog_tracker.update(self.match, delta_minutes)
 
-            # Time-winning accrues off the score state heading into this event
+            # The team ahead at this point earns time-winning for the interval since the last event.
             home_score = self.match.home_team.score
             away_score = self.match.away_team.score
             self.home_stats_calc.calculate_time_winning(home_score > away_score, delta_minutes)

@@ -1,3 +1,4 @@
+# Match stores the teams and the event timeline.
 from features.team import Team
 '''
 to do: post hoc - score involvements, scores

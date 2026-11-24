@@ -1,3 +1,4 @@
+# Team-level chain scoring and stat aggregation.
 from game_stats.Data_Classes import TeamStats
 
 class CalcTeamStats:
@@ -14,32 +15,29 @@ class CalcTeamStats:
             if stats is not None:
                 stats.inc("score_involvements")
 
-        if self.team_stats is not None:
-            self.team_stats.inc("score_involvements")
-
         for player in chain.get_goal_assist_players():
             stats = getattr(player, "current_game_stats", None)
             if stats is not None:
                 stats.inc("goal_assists")
 
-        if self.team_stats is not None:
-            self.team_stats.inc("goal_assists")
-
     def _infer_score_stat_name(self, chain):
         if chain is None:
             return None
 
+        # The score-origin stat reflects how the scoring team won possession,
+        # not how the chain ended. That is why the start reason matters more
+        # than the final scoring event here.
+        # (chain.start_reason), not how the chain ended (it always ends in a
+        # goal/behind/rushed_behind here, since this is only called when
+        # chain.resulted_in_score() is True). Using end_reason here would
+        # make every scoring chain look like it started from a center
+        # bounce, which is what the previous version did.
         start_reason = getattr(chain, "start_reason", None)
         if start_reason in self.CHAIN_SCORE_STAT_BY_START_REASON:
             return self.CHAIN_SCORE_STAT_BY_START_REASON[start_reason]
 
-        end_reason = getattr(chain, "end_reason", None)
-        if end_reason in {"goal", "behind", "rushed_behind"}:
-            return "points_from_center_bounces"
-
-        if end_reason in {"out_of_bounds", "tackle"}:
-            return "points_from_stoppage"
-
+        # Fallback for chains with a missing or unrecognised start_reason:
+        # infer it by scanning back through the chain's own events.
         for event in reversed(getattr(chain, "events", [])):
             event_type = getattr(event, "event_type", None)
             if event_type == "out_of_bounds":
@@ -73,5 +71,3 @@ class CalcTeamStats:
             return
 
         self.team_stats.inc(stat_name, amount=chain.points_scored())
-
-

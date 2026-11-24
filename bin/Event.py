@@ -1,3 +1,4 @@
+# Core event abstractions and AFL-specific enums.
 from abc import ABC, abstractmethod
 from enum import Enum
 
